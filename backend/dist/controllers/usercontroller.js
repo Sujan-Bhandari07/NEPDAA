@@ -38,8 +38,13 @@ const registeruser = async (req, res) => {
         });
         if (user) {
             const token = gettoken(user._id);
-            res.cookie("token", token, {
-                maxAge: 7 * 24 * 60 * 60 * 1000,
+           res.cookie("token", token, {
+  httpOnly: true,         // safer, JS can’t read it
+  secure: true,           // must be HTTPS in production
+  sameSite: "none",       // allows cross-site cookies
+  path: "/",              // cookie valid for all paths
+  maxAge: 7 * 24 * 60 * 60 * 1000
+});
             });
             const mailoption = {
                 from: process.env.SENDER_EMAIL,
@@ -83,7 +88,13 @@ const login = async (req, res) => {
         }
         const token = gettoken(existuser._id);
         if (token) {
-            res.cookie("token", token, { maxAge: 7 * 24 * 60 * 60 * 1000 });
+            res.cookie("token", token, {
+  httpOnly: true,         // safer, JS can’t read it
+  secure: true,           // must be HTTPS in production
+  sameSite: "none",       // allows cross-site cookies
+  path: "/",              // cookie valid for all paths
+  maxAge: 7 * 24 * 60 * 60 * 1000
+});
             const a = await User.findOne({ email: email }).select("-password");
             return success(res, "Login successfull", a);
         }
