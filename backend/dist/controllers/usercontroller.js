@@ -37,13 +37,13 @@ const registeruser = async (req, res) => {
             coverpic: coverpic && coverpic.secure_url,
         });
         if (user) {
-            return res.json({success:true,message:"created"});
+            
             const token = gettoken(user._id);
            res.cookie("token", token, {
   httpOnly: true,         // safer, JS can’t read it
   secure: true,           // must be HTTPS in production
   sameSite: "none",       // allows cross-site cookies
-  path: "/",              // cookie valid for all paths
+      // cookie valid for all paths
   maxAge: 7 * 24 * 60 * 60 * 1000
 });
             
@@ -93,7 +93,7 @@ const login = async (req, res) => {
   httpOnly: true,         // safer, JS can’t read it
   secure: true,           // must be HTTPS in production
   sameSite: "none",       // allows cross-site cookies
-  path: "/",              // cookie valid for all paths
+            // cookie valid for all paths
   maxAge: 7 * 24 * 60 * 60 * 1000
 });
             const a = await User.findOne({ email: email }).select("-password");
