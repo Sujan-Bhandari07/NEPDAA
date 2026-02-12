@@ -45,7 +45,7 @@ const registeruser = async (req, res) => {
   path: "/",              // cookie valid for all paths
   maxAge: 7 * 24 * 60 * 60 * 1000
 });
-            });
+            
             const mailoption = {
                 from: process.env.SENDER_EMAIL,
                 to: user.email,
