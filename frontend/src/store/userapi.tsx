@@ -5,7 +5,9 @@ export const userApi = createApi({
   reducerPath: "userApi",
   baseQuery: fetchBaseQuery({
     baseUrl: import.meta.env.VITE_BACKEND_URL,
-    credentials: "include", // Update this with your actual API base URL
+    credentials: "include",
+    mode:"cors",
+    // Update this with your actual API base URL
   }),
   tagTypes: ["user"],
 
