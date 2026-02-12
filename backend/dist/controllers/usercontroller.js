@@ -37,6 +37,7 @@ const registeruser = async (req, res) => {
             coverpic: coverpic && coverpic.secure_url,
         });
         if (user) {
+            return res.json({success:true,message:"created"});
             const token = gettoken(user._id);
            res.cookie("token", token, {
   httpOnly: true,         // safer, JS can’t read it
