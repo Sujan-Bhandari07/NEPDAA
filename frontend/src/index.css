@@ -1,0 +1,63 @@
+@import "tailwindcss";
+::-webkit-scrollbar{
+    display: none;
+}
+
+.df{
+    border-radius: 50%;
+}
+
+
+.option.active{
+background:black;
+color: white;
+}
+.blue:hover{
+color: rgb(6, 6, 248);
+cursor: pointer;
+}
+.green{
+    color: rgb(8, 174, 8);
+}
+.red{
+    color: red;
+}
+
+.story::-webkit-scrollbar{
+    display: none;
+}
+.asd{
+
+background-color: black;
+color: white;
+
+}
+
+.fir{
+    word-wrap: break-word;
+    align-self: flex-start;
+
+background-color: rgba(128, 128, 128, 0.369);
+
+}
+
+.aed{
+    background-color: rgba(158, 135, 135, 0.211);
+
+}
+.sec{
+    word-wrap: break-word;
+    background-color: blue;
+
+    color: whitesmoke;
+
+    align-self: flex-end;
+}
+.mnb{
+
+  box-shadow: 0 0 20px 20px rgba(0, 0, 0, 0.3);
+
+
+}
+
+
