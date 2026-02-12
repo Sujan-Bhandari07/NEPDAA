@@ -4,7 +4,7 @@ import type { getuser, gu } from "../types/loginpagetypes";
 export const userApi = createApi({
   reducerPath: "userApi",
   baseQuery: fetchBaseQuery({
-    baseUrl: import.meta.env.VITE_BACKEND_URL||" https://localhost:9000/api",
+    baseUrl: import.meta.env.VITE_BACKEND_URL,
     credentials: "include", // Update this with your actual API base URL
   }),
   tagTypes: ["user"],
