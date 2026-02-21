@@ -18,8 +18,6 @@ const createpost = async (req, res) => {
         if (!user) {
             return err(res, "User not authenticated");
         }
-
-        if(!post)return err(res,"no post")
         if (post) {
             url = (await cloudinary.uploader.upload(post.path, { resource_type: "auto" })).secure_url;
             if (url) {

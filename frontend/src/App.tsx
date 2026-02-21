@@ -22,7 +22,7 @@ const App = () => {
   useEffect(() => {
     let socketInstance: Socket;
     if (isauth && user) {
-      socketInstance = io("https://nepfron.onrender.com", {
+      socketInstance = io("http://localhost:9000", {
         query: { userid: user._id },
         transports: ["websocket"],
       });
