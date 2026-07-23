@@ -240,13 +240,16 @@ const getbookmarkpost = async (req: Authtype, res: Response<responsetype>) => {
 const getallstories =async (req:Request,res:Response)=>{
 
   try {
-    const posts = await Post.find({mediatype:"video"}).populate({
+    const posts = await Post.find({mediatype:"video",createdAt: {
+    $gte: new Date(Date.now() - 24 * 60 * 60 * 1000),
+  },}).populate({
       path:"author",
       select:"profilepic fullname username"
     });
     if (!posts) {
       return err(res, "stories not found ");
     }
+   
     return success(res, "Stories found", posts);
 
     

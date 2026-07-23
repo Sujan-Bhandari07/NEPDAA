@@ -204,7 +204,9 @@ const getbookmarkpost = async (req, res) => {
 };
 const getallstories = async (req, res) => {
     try {
-        const posts = await Post.find({ mediatype: "video" }).populate({
+        const posts = await Post.find({ mediatype: "video", createdAt: {
+                $gte: new Date(Date.now() - 24 * 60 * 60 * 1000),
+            }, }).populate({
             path: "author",
             select: "profilepic fullname username"
         });
