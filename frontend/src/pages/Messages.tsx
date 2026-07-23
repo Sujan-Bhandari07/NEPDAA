@@ -50,6 +50,8 @@ if(response.success ){
 
   }
 
+
+
   useEffect(() => {
     
   
@@ -93,7 +95,7 @@ if(response.success ){
         <div className="flex justify-between px-2 pt-1 rounded-2xl items-center border border-gray-500 w-[80%]">
 
         <input onChange={(e)=>setMessage(e.target.value)} value={message}  type="text" className="outline-none w-full  px-2 py-1 " placeholder="" name="" id="" />
-        <button onClick={handlesend} className="bg-black cursor-pointer text-white px-4 rounded-2xl py-1">Send</button>
+        <button onClick={handlesend} disabled={message.trim().length<1} className={`${message.trim().length<1?"bg-gray-200":"bg-black "} cursor-pointer text-white px-4 rounded-2xl py-1`}>Send</button>
         </div>
       </div>
     </div>

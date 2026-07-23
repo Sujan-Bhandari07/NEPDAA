@@ -265,7 +265,7 @@ if(a==1){
             <div className="mid flex flex-col">
               <div className="w-full  h-100">
                 <img
-                  className="h-full w-full object-center object-cover"
+                  className="h-full w-full object-center  object-contain"
                   src={item?.post}
                   alt=""
                 />
