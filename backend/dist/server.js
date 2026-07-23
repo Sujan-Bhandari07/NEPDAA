@@ -1,13 +1,12 @@
+import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import dotenv from "dotenv";
 import connectDB from "./config/db.js";
 import { userrouter } from "./routes/userroute.js";
 import { postrouter } from "./routes/postroute.js";
 import { messagerouter } from "./routes/messageroute.js";
 import { app, server } from "./socket/socket.js";
-dotenv.config();
 connectDB();
 const PORT = process.env.PORT || 9000;
 app.use(express.json());
