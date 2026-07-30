@@ -1,27 +1,32 @@
-import {  useEffect } from "react"
-import { useAppSelector } from "../../store/Hooks"
-import { useLocation, useNavigate } from "react-router-dom"
+import { useEffect, useState } from "react";
+import { useAppSelector } from "../../store/Hooks";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useGetuserQuery } from "../../store/userapi";
 
-const Protective = ({children}:{children:React.ReactNode}) => {
+const Protective = ({ children }: { children: React.ReactNode }) => {
+  const { isauth } = useAppSelector((state) => state.user);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { isLoading, isError } = useGetuserQuery();
+  const [authChecked, setAuthChecked] = useState(false);
 
-    const {isauth} = useAppSelector(state=>state.user)
-    const location = useLocation()
-    const navigate = useNavigate()
-    useEffect(() => {
-      if(isauth && location.pathname == "/login"){
-        navigate("/")
-      }else if(!isauth && location.pathname !== "/login"){
-        navigate("/login")
-      }
-    
+  useEffect(() => {
+    if (isLoading) return;
 
-    }, [navigate,location,isauth])
-    
-  return (
-      <>
-          {children}
-      </>
-  )
-}
+    setAuthChecked(true);
+
+    if (isauth && location.pathname === "/login") {
+      navigate("/");
+    } else if (!isauth && location.pathname !== "/login") {
+      navigate("/login");
+    }
+  }, [navigate, location, isauth, isLoading, isError]);
+
+  if (!authChecked) {
+    return null;
+  }
+
+  return <>{children}</>;
+};
 
 export default Protective

@@ -14,11 +14,25 @@ import Protective from "./components/common/Protective";
 import { useAppDispatch, useAppSelector } from "./store/Hooks";
 import { io, Socket } from "socket.io-client";
 import { setonlineusers, setsocket } from "./store/socketslice";
+import { useGetuserQuery } from "./store/userapi";
+import { setisauth, setuser } from "./store/Userslice";
 
 const App = () => {
   const dispatch = useAppDispatch();
 
   const { user, isauth } = useAppSelector((state) => state.user);
+  const { data, isSuccess, isError } = useGetuserQuery();
+
+  useEffect(() => {
+    if (isSuccess && data?.payload) {
+      dispatch(setuser(data.payload));
+      dispatch(setisauth(true));
+    } else if (isError) {
+      dispatch(setuser(null));
+      dispatch(setisauth(false));
+    }
+  }, [data, dispatch, isError, isSuccess]);
+
   useEffect(() => {
     let socketInstance: Socket;
     if (isauth && user) {

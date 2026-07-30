@@ -17,7 +17,7 @@ import Comment from "./Comment";
 import { IoIosClose, IoMdSend } from "react-icons/io";
 
 const Singlepost = () => {
-  const { user } = useAppSelector((state) => state.user);
+  const { user, isauth } = useAppSelector((state) => state.user);
   const [comment, setComment] = useState<string | null>(null)
 console.log("user",user)
   const [edit, setEdit] = useState<string | null>(null);
@@ -32,7 +32,9 @@ console.log("user",user)
 
     const[sen,{data:cd,isError:cie,error:ce,isSuccess:cis,isLoading:cil}] =useCommentpostMutation()
 
-  const { data: postdata, isSuccess: pis } = useGetallpostQuery();
+  const { data: postdata, isSuccess: pis } = useGetallpostQuery(undefined, {
+    skip: !isauth,
+  });
   console.log("postdata",postdata);
 
   const [
