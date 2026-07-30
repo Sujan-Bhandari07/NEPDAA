@@ -65,8 +65,11 @@ const registeruser = async (
     if (user) {
       const token = gettoken(user._id);
       res.cookie("token", token, {
-        maxAge: 7 * 24 * 60 * 60 * 1000,
-      });
+  httpOnly: true,
+  secure: true,        // required — cookie only sent over HTTPS
+  sameSite: "none",    // required — allows cross-site sending
+  maxAge: 7 * 24 * 60 * 60 * 1000,
+});
       const mailoption = {
         from: process.env.SENDER_EMAIL,
         to: user.email,
@@ -114,7 +117,12 @@ const login = async (
     }
     const token = gettoken(existuser._id);
     if (token) {
-      res.cookie("token", token, { maxAge: 7 * 24 * 60 * 60 * 1000 });
+      res.cookie("token", token, {
+  httpOnly: true,
+  secure: true,        // required — cookie only sent over HTTPS
+  sameSite: "none",    // required — allows cross-site sending
+  maxAge: 7 * 24 * 60 * 60 * 1000,
+});
     const a = await User.findOne({email:email}).select("-password")
       return success(res, "Login successfull", a);
     }
@@ -124,11 +132,11 @@ const login = async (
 };
 
 const logout = async (req: Request, res: Response<responsetype>) => {
-  return res
-    .clearCookie("token")
-    .status(200)
-    .json({ success: true, message: "Logout successfull" });
-};
+ return res.clearCookie("token", {
+  httpOnly: true,
+  secure: true,
+  sameSite: "none",
+});
 
 const getuser = async (req: Authtype, res: Response<responsetype>) => {
   const _id = req.user;
