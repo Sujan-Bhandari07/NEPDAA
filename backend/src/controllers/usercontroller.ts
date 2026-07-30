@@ -136,7 +136,7 @@ const logout = async (req: Request, res: Response<responsetype>) => {
   httpOnly: true,
   secure: true,
   sameSite: "none",
-});
+})};
 
 const getuser = async (req: Authtype, res: Response<responsetype>) => {
   const _id = req.user;
