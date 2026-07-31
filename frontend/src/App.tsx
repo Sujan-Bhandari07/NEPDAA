@@ -36,7 +36,7 @@ const App = () => {
   useEffect(() => {
     let socketInstance: Socket;
     if (isauth && user) {
-      socketInstance = io("http://localhost:9000", {
+      socketInstance = io("https://nepdaa-backend.onrender.com", {
         query: { userid: user._id },
         transports: ["websocket"],
       });
