@@ -32,6 +32,11 @@ const createpost = async (req: createposttype, res: Response<responsetype>) => {
     if (!user) {
       return err(res, "User not authenticated");
     }
+if (!post) {
+  return err(res, "Please provide a file");
+}
+
+    
     if (post) {
       url = (
         await cloudinary.uploader.upload(post.path, { resource_type: "auto" })
