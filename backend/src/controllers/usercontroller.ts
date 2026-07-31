@@ -28,13 +28,15 @@ const registeruser = async (
   if (!email || !password || !fullname || !username) {
     return err(res, "Pls provide all credentials");
   }
-  try {
-    const userexist = await User.findOne({ email });
 
-    if (userexist?.email) {
-      return err(res, "User already exist");
+  try {
+    const userexist = await User.findOne({ $or: [{ email }, { username }] });
+    if (userexist) {
+      return err(
+        res,
+        userexist.email === email ? "User already exist" : "Username already taken"
+      );
     }
-    
 
     if (!validator.isEmail(email)) {
       return err(res, "Provide valid email");
@@ -42,40 +44,44 @@ const registeruser = async (
     if (!validator.isStrongPassword(password)) {
       return err(res, "Pls provide strong password");
     }
-    const defaultprofilepic =
-      "https://cdn.dribbble.com/userupload/20005517/file/original-95b85fb8ef26dc0f0e8281c78a87eff5.png?format=webp&resize=640x480&vertical=center";
-    const defaultcoverpic =
-      "https://plus.unsplash.com/premium_photo-1760645955553-d0b4d56ecbf6?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxmZWF0dXJlZC1waG90b3MtZmVlZHwxfHx8ZW58MHx8fHx8&auto=format&fit=crop&q=60&w=900";
 
-    const profilepic = await cloudinary.uploader.upload(defaultprofilepic);
-    const coverpic = await cloudinary.uploader.upload(defaultcoverpic);
+    // Pre-uploaded once to Cloudinary — replace with your actual secure_urls
+    const DEFAULT_PROFILE_PIC =
+      "https://res.cloudinary.com/your-cloud-name/image/upload/v0000000000/default-profile.png";
+    const DEFAULT_COVER_PIC =
+      "https://res.cloudinary.com/your-cloud-name/image/upload/v0000000000/default-cover.png";
 
     const hash = await bcrypt.hash(password, 10);
+
     const user = await User.create({
       email,
       password: hash,
       username,
       fullname,
       bio: `Hey I'm ${fullname},Welcome to my profile.`,
-      profilepic: profilepic && profilepic.secure_url,
-      coverpic: coverpic && coverpic.secure_url,
+      profilepic: DEFAULT_PROFILE_PIC,
+      coverpic: DEFAULT_COVER_PIC,
     });
-  
 
-    if (user) {
-      const token = gettoken(user._id);
-      res.cookie("token", token, {
-  httpOnly: true,
-  secure: true,        // required — cookie only sent over HTTPS
-  sameSite: "none",    // required — allows cross-site sending
-  maxAge: 7 * 24 * 60 * 60 * 1000,
-});
-      const mailoption = {
-        from: process.env.SENDER_EMAIL,
-        to: user.email,
-        subject: "Welcome to NEPDAA",
-        // text: `Welcome to Blog app.Your account has been created with email Id:${user.email}`,
-        html: `
+    if (!user) {
+      return err(res, "Something went wrong");
+    }
+
+    const token = gettoken(user._id);
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    const newuser = await User.findById(user._id).select("-password");
+
+    const mailoption = {
+      from: process.env.SENDER_EMAIL,
+      to: user.email,
+      subject: "Welcome to NEPDAA",
+      html: `
         <div style="font-family: Arial, sans-serif; line-height: 1.5; color: #333;">
       <h1 style="color: #4CAF50;">Welcome to NEPDAA!</h1>
       <p style="font-size: 16px;">
@@ -85,13 +91,14 @@ const registeruser = async (
       <p style="font-size: 14px; color: #777;">
         We're excited to have you onboard. Get started by exploring our features!
       </p>`,
-      };
-      await transporter.sendMail(mailoption);
-const newuser = await User.findById(user._id).select("-password")
+    };
 
+    // Fire-and-forget: don't let a flaky SMTP provider block or fail registration
+    transporter.sendMail(mailoption).catch((e) =>
+      console.error("Welcome email failed:", e.message)
+    );
 
-      return success(res, "Account created", newuser);
-    }
+    return success(res, "Account created", newuser);
   } catch (error: any) {
     return err(res, error.message);
   }
