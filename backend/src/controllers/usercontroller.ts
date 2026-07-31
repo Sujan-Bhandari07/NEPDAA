@@ -68,11 +68,10 @@ const registeruser = async (
     }
 
     const token = gettoken(user._id);
-    res.cookie("token", token, {
+ res.cookie("token", token, {
   httpOnly: true,
   secure: true,
-  sameSite: "lax", // can relax this now since it's same-site
-  domain: ".nepdaa.com",
+  sameSite: "none",
   maxAge: 7 * 24 * 60 * 60 * 1000,
 });
 
@@ -125,11 +124,10 @@ const login = async (
     }
     const token = gettoken(existuser._id);
     if (token) {
-     res.cookie("token", token, {
+   res.cookie("token", token, {
   httpOnly: true,
   secure: true,
-  sameSite: "lax", // can relax this now since it's same-site
-  domain: ".nepdaa.com",
+  sameSite: "none",
   maxAge: 7 * 24 * 60 * 60 * 1000,
 });
     const a = await User.findOne({email:email}).select("-password")
