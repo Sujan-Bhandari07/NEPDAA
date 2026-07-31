@@ -24,41 +24,36 @@ const createpost = async (req: createposttype, res: Response<responsetype>) => {
   const _id = req.user;
   const files = req.files as { [field: string]: Express.Multer.File[] };
   const post = files?.post?.[0];
-  const {caption}=req.body
+  const { caption } = req.body;
   try {
-    let url: string = "";
-
-    const user = await User.findById(_id);
-    if (!user) {
+    if (!_id) {
       return err(res, "User not authenticated");
     }
-if (!post) {
-  return err(res, "Please provide a file");
-}
-
-    
-    if (post) {
-      url = (
-        await cloudinary.uploader.upload(post.path, { resource_type: "auto" })
-      ).secure_url;
-      if (url) {
-        await unlink(post.path);
-      }
-      
-      const newpost = await Post.create({
-        author: user?._id,
-        post: url,
-        caption:caption?caption:"",
-        mediatype: post?.mimetype.startsWith("video/") ? "video" : "image",
-      });
-
-      if (!newpost) {
-        return err(res, "Something went wrong");
-      }
+    if (!post) {
+      return err(res, "Please provide a file");
     }
-    
 
-    return success(res,post?.mimetype.startsWith("video/")?"Story uploaded..":"Post created..." );
+    const base64 = `data:${post.mimetype};base64,${post.buffer.toString("base64")}`;
+    const url = (
+      await cloudinary.uploader.upload(base64, { resource_type: "auto" })
+    ).secure_url;
+
+    const newpost = await Post.create({
+      author: _id,
+      post: url,
+      caption: caption ? caption : "",
+      mediatype: post.mimetype.startsWith("video/") ? "video" : "image",
+    });
+
+    if (!newpost) {
+      return err(res, "Something went wrong");
+    }
+
+    return success(
+      res,
+      post.mimetype.startsWith("video/") ? "Story uploaded.." : "Post created...",
+      newpost
+    );
   } catch (error: any) {
     return err(res, error.message);
   }
