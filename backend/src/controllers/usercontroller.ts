@@ -132,11 +132,13 @@ const login = async (
 };
 
 const logout = async (req: Request, res: Response<responsetype>) => {
- return res.clearCookie("token", {
+  res.clearCookie("token", {
   httpOnly: true,
   secure: true,
   sameSite: "none",
-})};
+})
+return success(res,"Logout successfully");
+};
 
 const getuser = async (req: Authtype, res: Response<responsetype>) => {
   const _id = req.user;
