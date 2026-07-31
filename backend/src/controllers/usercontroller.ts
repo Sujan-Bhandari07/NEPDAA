@@ -172,16 +172,14 @@ const updateprofile = async (req: updatetype, res: Response<responsetype>) => {
     if (!user) {
       return err(res, "User not found");
     }
-
     if (coverpic) {
-      cover = (await cloudinary.uploader.upload(coverpic.path)).secure_url;
-
-      await unlink(coverpic.path);
+      const base64 = `data:${coverpic.mimetype};base64,${coverpic.buffer.toString("base64")}`;
+      cover = (await cloudinary.uploader.upload(base64)).secure_url;
       user.coverpic = cover;
     }
     if (profilepic) {
-      profile = (await cloudinary.uploader.upload(profilepic.path)).secure_url;
-      await unlink(profilepic.path);
+      const base64 = `data:${profilepic.mimetype};base64,${profilepic.buffer.toString("base64")}`;
+      profile = (await cloudinary.uploader.upload(base64)).secure_url;
       user.profilepic = profile;
     }
     if (username) {
