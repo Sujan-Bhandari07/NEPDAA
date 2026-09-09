@@ -5,10 +5,13 @@ interface userslicetype{
     user:usertype | null,
     isauth:boolean,
     search:string,
+    emails:string|null
     selecteduser:usertype |null
 }
 const initialState :userslicetype= {
   user: null,
+  emails:null,
+
   isauth:false,
 search : "",
 selecteduser:null
@@ -21,6 +24,11 @@ const userSlice = createSlice({
   reducers: {
     setuser(state,action:PayloadAction<usertype | null>){
         state.user= action.payload
+        state.emails=action.payload?.email ?? null
+    },
+
+    setemail(state, action: PayloadAction<string | null>) {
+      state.emails = action.payload
     },
 
     setselecteduser(state,action:PayloadAction<usertype |null>){
@@ -51,6 +59,6 @@ setisauth(state,action:PayloadAction<boolean>){
 
 })
 
-export const {setuser,setisauth,setsearch,setselecteduser}=userSlice.actions
+export const {setuser,setemail,setisauth,setsearch,setselecteduser}=userSlice.actions
 
 export default userSlice.reducer

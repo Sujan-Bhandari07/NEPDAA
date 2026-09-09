@@ -70,7 +70,7 @@ const login = async (req, res) => {
     const { email, password } = req.body;
     console.log(email, password);
     try {
-        if (!login || !password) {
+        if (!email || !password) {
             return err(res, "Provide all credentials");
         }
         const existuser = await User.findOne({ email });
@@ -323,9 +323,9 @@ const newpassword = async (req, res) => {
         if (password !== confirmpassword) {
             return err(res, "Password doesnot matched !");
         }
-        if (!validator.isStrongPassword(password) &&
+        if (!validator.isStrongPassword(password) ||
             !validator.isStrongPassword(confirmpassword)) {
-            return err(res, "Pls provide striong password");
+            return err(res, "Please provide a strong password");
         }
         const hashpass = await bcrypt.hash(password, 10);
         user.password = hashpass;

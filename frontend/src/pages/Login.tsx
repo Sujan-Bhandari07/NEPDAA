@@ -12,7 +12,7 @@ import {
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../store/Hooks";
-import { setisauth, setuser } from "../store/Userslice";
+import { setemail, setisauth, setuser } from "../store/Userslice";
 
 // @ts-nocheck
 
@@ -20,9 +20,10 @@ const Login = () => {
   const dispatch = useAppDispatch();
 
 
-  const { user } = useAppSelector((state) => state.user);
+  const { emails } = useAppSelector((state) => state.user);
   const navigate = useNavigate();
   const [login, setLogin] = useState(true);
+  const [forgotPassword, setForgotPassword] = useState(false);
   const [otp, setOtp] = useState(false);
   const [conotp, setConotp] = useState(false);
   const [form, setForm] = useState<formtype>({
@@ -63,28 +64,13 @@ const [newpass,{data:pd,isError:pie,error:pe,isSuccess:pis,isLoading:pil}]=useNe
   };
 
   const handlelogin = () => {
+    setForgotPassword(false);
     setLogin((prev) => !prev);
   };
   const handleotp = async () => {
     if (login && !otp && !conotp) {
-      if(!user){
-        return toast.error("Login first")
-      }
-      
-      const a = await sendresetotp({ email: user.email}).unwrap();
-      if (a.success) {
-        toast.success(a.message);
-        setForm({
-          username: "",
-          email: "",
-          password: "",
-          fullname: "",
-          newpassword: "",
-          otps: "",
-        });
-        setLogin(false);
-        setOtp(true);
-      }
+      setForgotPassword(true);
+      return;
     }
     if (otp) {
       setOtp(false);
@@ -98,6 +84,28 @@ const [newpass,{data:pd,isError:pie,error:pe,isSuccess:pis,isLoading:pil}]=useNe
 
   const handlesubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (forgotPassword && login && !otp && !conotp) {
+      if (!form.email) {
+        return toast.error("Enter your email first");
+      }
+
+      dispatch(setemail(form.email));
+      const a = await sendresetotp({ email: form.email }).unwrap();
+      if (a.success) {
+        toast.success(a.message);
+        setForm({
+          username: "",
+          email: "",
+          password: "",
+          fullname: "",
+          newpassword: "",
+          otps: "",
+        });
+        setOtp(true);
+      }
+      return;
+    }
+
     if (!login && !otp && !conotp) {
       const a = await register({
         fullname: form.fullname,
@@ -115,6 +123,7 @@ const [newpass,{data:pd,isError:pie,error:pe,isSuccess:pis,isLoading:pil}]=useNe
           otps: "",
         });
       }
+      return;
     }
 
     if (login && !otp && !conotp) {
@@ -132,9 +141,10 @@ const [newpass,{data:pd,isError:pie,error:pe,isSuccess:pis,isLoading:pil}]=useNe
           otps: "",
         });
       }
+      return;
     }
     if(conotp){
-      const a = await newpass({email:user?.email,password:form.password,confirmpassword:form.newpassword}).unwrap()
+      const a = await newpass({email:emails,password:form.password,confirmpassword:form.newpassword}).unwrap()
       if(a.success){
         setForm({
           username: "",
@@ -150,7 +160,7 @@ const [newpass,{data:pd,isError:pie,error:pe,isSuccess:pis,isLoading:pil}]=useNe
 
     if(otp){
 
-      const a= await checkotp({email:user?.email,otp:form.otps}).unwrap()
+      const a= await checkotp({email:emails,otp:form.otps}).unwrap()
 
       if(a.success){
         setOtp(false);
@@ -179,6 +189,7 @@ const [newpass,{data:pd,isError:pie,error:pe,isSuccess:pis,isLoading:pil}]=useNe
     if (registerissuccess) {
       dispatch(setuser(registerdata.payload));
       dispatch(setisauth(true))
+      
       navigate("/");
 
       toast.success(registerdata.message);
@@ -316,7 +327,7 @@ console.log(form)
             placeholder="Enter your email"
           />
         )}
-        {!otp && (
+        {!otp && (conotp || !login || !forgotPassword) && (
           <input
             onChange={handleform}
             name="password"
@@ -324,7 +335,7 @@ console.log(form)
             className="w-full h-full border outline-0  py-2 border-black-200 text-[1.1rem] px-4 mx-1"
             type="password"
             id=""
-            placeholder="Enter your password"
+            placeholder={conotp ? "Enter new password" : "Enter your password"}
           />
         )}
 
@@ -345,7 +356,7 @@ console.log(form)
             value={form.newpassword}
             className="w-full h-full border outline-0  py-2 border-black-200 text-[1.1rem] px-4 mx-1"
             type="password"
-            placeholder="Enter Confirm password"
+            placeholder="Confirm new password"
           />
         )}
 
@@ -378,11 +389,15 @@ console.log(form)
 
           className="bg-black cursor-pointer text-white px-3 border-none outline-none py-1"
         >
-          {login && !otp
-            ? "Sign in"
-            : !login && !otp
-              ? "Sign up"
-              : otp ? "Send":conotp && "Send"}
+          {otp
+            ? "Verify OTP"
+            : conotp
+              ? "Change password"
+              : forgotPassword
+                ? "Send OTP"
+                : login
+                  ? "Sign in"
+                  : "Sign up"}
         </button>
       </div>
     </form>
