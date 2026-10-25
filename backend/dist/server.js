@@ -2,19 +2,20 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import connectDB from "./config/db.js";
+import dns from 'dns';
+dns.setDefaultResultOrder('ipv4first');
 import { userrouter } from "./routes/userroute.js";
 import { postrouter } from "./routes/postroute.js";
 import { messagerouter } from "./routes/messageroute.js";
 import { app, server } from "./socket/socket.js";
-connectDB();
+import { connectDB } from "./config/db.js";
 const PORT = process.env.PORT || 9000;
+connectDB();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors({
     origin: "http://localhost:5173",
     credentials: true, // allow cookies/auth
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
 }));
 app.use(cookieParser());

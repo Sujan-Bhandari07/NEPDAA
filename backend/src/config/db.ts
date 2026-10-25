@@ -2,12 +2,14 @@ import mongoose from 'mongoose';
 
 const connectDB = async () => {
   try {
-    const mongoURI = process.env.MONGO_URI;
+    const mongoURI = process.env.MONGOS as string;
 
     if (!mongoURI) {
       throw new Error('MONGO_URI is not defined in environment variables.');
     }
-    await mongoose.connect(mongoURI);
+    await mongoose.connect(mongoURI,{
+      dbName:"Adda-n"
+    });
     console.log('MongoDB Connected...');
   } catch (err: any) {
     console.error(err.message);
@@ -15,4 +17,4 @@ const connectDB = async () => {
   }
 };
 
-export default connectDB;
+export  {connectDB};
