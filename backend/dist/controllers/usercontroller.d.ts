@@ -2,7 +2,7 @@ import type { Request, Response } from "express";
 import type { Authtype, checkresetotptype, checkverifyotptype, followtype, newpasswordtype, sendresetotptype, updatetype } from "../types/authtype.js";
 import type { responsetype } from "../types/responsetype.js";
 import type { logintype, register } from "../types/usertype.js";
-declare const registeruser: (req: Request<{}, {}, register>, res: Response<responsetype>) => Promise<Response<responsetype, Record<string, any>> | undefined>;
+declare const registeruser: (req: Request<{}, {}, register>, res: Response<responsetype>) => Promise<Response<responsetype, Record<string, any>>>;
 declare const login: (req: Request<{}, {}, logintype>, res: Response<responsetype>) => Promise<Response<responsetype, Record<string, any>> | undefined>;
 declare const logout: (req: Request, res: Response<responsetype>) => Promise<Response<responsetype, Record<string, any>>>;
 declare const getuser: (req: Authtype, res: Response<responsetype>) => Promise<Response<responsetype, Record<string, any>>>;
