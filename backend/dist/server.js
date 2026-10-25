@@ -14,7 +14,7 @@ connectDB();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors({
-    origin: "https://nepdaa-frontend.onrender.com",
+    origin: "http://localhost:5173",
     credentials: true, // allow cookies/auth
     allowedHeaders: ["Content-Type", "Authorization"],
 }));

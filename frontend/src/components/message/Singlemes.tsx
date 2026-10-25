@@ -2,24 +2,34 @@ import { Fragment, useEffect, useRef } from "react";
 import { useAppDispatch, useAppSelector } from "../../store/Hooks";
 import { setconversation } from "../../store/conversationslice";
 import type { Message } from "../../types/messagetype";
+import { getSocketClient } from "../../store/socketClient";
 
 const Singlemes = () => {
-  const { socket } = useAppSelector((state) => state.socket);
+  const connected = useAppSelector((state) => state.socket.connected);
   const dispatch = useAppDispatch();
 
   const { user, selecteduser } = useAppSelector((state) => state.user);
 
   useEffect(() => {
-    if (socket) {
-      socket.on("newmessage", (data: Message) => {
+    const socket = getSocketClient();
+    if (!socket) return;
+
+    const handleNewMessage = (data: Message) => {
+      if (
+        selecteduser &&
+        (data.sender === selecteduser._id ||
+          data.receiver === selecteduser._id)
+      ) {
         dispatch(setconversation(data));
-      });
-    }
+      }
+    };
+
+    socket.on("newmessage", handleNewMessage);
 
     return () => {
-      socket?.off("newmessage");
+      socket.off("newmessage", handleNewMessage);
     };
-  }, [socket, dispatch, selecteduser]);
+  }, [connected, dispatch, selecteduser]);
 
   const { messages } = useAppSelector((state) => state.conversation);
   console.log(messages);

@@ -13,7 +13,7 @@ import { unlink } from "fs/promises";
 import Conversation from "../models/conversationmodel.js";
 import Message from "../models/messagemodel.js";
 import type { Types } from "mongoose";
-import { getsocketid, io } from "../socket/socket.js";
+import { io } from "../socket/socket.js";
 
 const sendmessage = async (
   req: sendmessagetype,
@@ -61,10 +61,7 @@ const sendmessage = async (
     if (newmessage) {
       conversation.messages.push(newmessage._id as Types.ObjectId);
       await conversation.save()
-     const id = getsocketid(receiverid)
-     if(id){
-      io.to(id).emit("newmessage",newmessage)
-     }
+     io.to(receiverid).emit("newmessage", newmessage);
       return success(res, "Message send",{newmessage});
     }
   } catch (error: any) {

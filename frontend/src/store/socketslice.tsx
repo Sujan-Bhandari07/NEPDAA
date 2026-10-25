@@ -1,13 +1,12 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
-import type { Socket } from "socket.io-client";
-import { castDraft } from "immer";
 
-interface sockettype {
-  socket: null | Socket;
+interface SocketState {
+  connected: boolean;
   onlineusers: Array<string>;
 }
-const initialState: sockettype = {
-  socket: null,
+
+const initialState: SocketState = {
+  connected: false,
   onlineusers: [],
 };
 
@@ -15,17 +14,16 @@ const socketslice = createSlice({
   name: "socket",
   initialState,
   reducers: {
-    setsocket(state, action: PayloadAction<{ id: Socket | null }>) {
-      state.socket = castDraft(action.payload.id);
+    setsocketconnected(state, action: PayloadAction<boolean>) {
+      state.connected = action.payload;
     },
 
     setonlineusers(state, action: PayloadAction<Array<string>>) {
       state.onlineusers = action.payload;
     },
-    // Add reducers here if needed in the future
   },
 });
 
-export const { setsocket, setonlineusers } = socketslice.actions;
+export const { setsocketconnected, setonlineusers } = socketslice.actions;
 
 export default socketslice.reducer;

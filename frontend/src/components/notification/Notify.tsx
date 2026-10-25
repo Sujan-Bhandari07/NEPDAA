@@ -1,28 +1,25 @@
 import { useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "../../store/Hooks";
 import { setnotification } from "../../store/postslice";
+import { getSocketClient } from "../../store/socketClient";
 
 const Notify = () => {
-  const { socket } = useAppSelector((state) => state.socket);
-  console.log("ss", socket);
+  const connected = useAppSelector((state) => state.socket.connected);
   const dispatch = useAppDispatch();
   const { notification } = useAppSelector((state) => state.post);
 
   useEffect(() => {
-    console.log("aa");
+    const socket = getSocketClient();
     if (!socket) return;
-
 
     socket.on("notification", (data) => {
       dispatch(setnotification({ data: data }));
     });
 
     return () => {
-      socket?.off("notification");
+      socket.off("notification");
     };
-  }, [socket, dispatch]);
-
-  console.log(notification);
+  }, [connected, dispatch]);
 
   return (
     <>

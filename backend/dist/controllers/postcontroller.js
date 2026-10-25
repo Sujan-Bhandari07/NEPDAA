@@ -4,7 +4,7 @@ import Post from "../models/postmodel.js";
 import User from "../models/usermodel.js";
 import { err, success } from "../utils/response.js";
 import Comment from "../models/commentmodel.js";
-import { getsocketid, io } from "../socket/socket.js";
+import { io } from "../socket/socket.js";
 import { profile } from "console";
 import path from "path";
 const createpost = async (req, res) => {
@@ -56,29 +56,22 @@ const likeorunlikepost = async (req, res) => {
                 post.likes.pull(id);
                 await post.save();
                 const uid = String(post.author);
-                const a = getsocketid(uid);
-                console.log(a);
-                if (a) {
-                    io.to(a).emit("notification", {
-                        profilepic: user?.profilepic,
-                        name: user?.fullname,
-                        message: ` unlikes your post.`
-                    });
-                }
+                io.to(uid).emit("notification", {
+                    profilepic: user?.profilepic,
+                    name: user?.fullname,
+                    message: ` unlikes your post.`
+                });
                 return success(res, `Post unliked `);
             }
             else if (!post.likes.includes(id)) {
                 post.likes.push(id);
                 await post.save();
                 const uid = String(post.author);
-                const a = getsocketid(uid);
-                if (a) {
-                    io.to(a).emit("notification", {
-                        profilepic: user?.profilepic,
-                        message: ` likes your post.`,
-                        name: user?.fullname
-                    });
-                }
+                io.to(uid).emit("notification", {
+                    profilepic: user?.profilepic,
+                    message: ` likes your post.`,
+                    name: user?.fullname
+                });
                 return success(res, `Post liked `);
             }
         }

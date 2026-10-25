@@ -3,7 +3,7 @@ import cloudinary from "../config/cloudinary.js";
 import { unlink } from "fs/promises";
 import Conversation from "../models/conversationmodel.js";
 import Message from "../models/messagemodel.js";
-import { getsocketid, io } from "../socket/socket.js";
+import { io } from "../socket/socket.js";
 const sendmessage = async (req, res) => {
     try {
         const { message, receiverid } = req.body;
@@ -45,10 +45,7 @@ const sendmessage = async (req, res) => {
         if (newmessage) {
             conversation.messages.push(newmessage._id);
             await conversation.save();
-            const id = getsocketid(receiverid);
-            if (id) {
-                io.to(id).emit("newmessage", newmessage);
-            }
+            io.to(receiverid).emit("newmessage", newmessage);
             return success(res, "Message send", { newmessage });
         }
     }

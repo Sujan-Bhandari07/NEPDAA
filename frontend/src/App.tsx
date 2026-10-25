@@ -13,7 +13,11 @@ import { Toaster } from "react-hot-toast";
 import Protective from "./components/common/Protective";
 import { useAppDispatch, useAppSelector } from "./store/Hooks";
 import { io, Socket } from "socket.io-client";
-import { setonlineusers, setsocket } from "./store/socketslice";
+import { setonlineusers, setsocketconnected } from "./store/socketslice";
+import {
+  clearSocketClient,
+  setSocketClient,
+} from "./store/socketClient";
 import { useGetuserQuery } from "./store/userapi";
 import { setisauth, setuser } from "./store/Userslice";
 
@@ -34,31 +38,32 @@ const App = () => {
   }, [data, dispatch, isError, isSuccess]);
 
   useEffect(() => {
-    let socketInstance: Socket;
+    let socketInstance: Socket | undefined;
     if (isauth && user) {
-      socketInstance = io("https://nepdaa-backend.onrender.com", {
+      socketInstance = io(new URL(import.meta.env.VITE_BACKEND_URL).origin, {
         query: { userid: user._id },
         transports: ["websocket"],
       });
+      setSocketClient(socketInstance);
 
       socketInstance.on("connect", () => {
-        // Warning: This still triggers the TS error we discussed earlier.
-        // Use 'as any' to bypass the TypeScript check if you must store it in Redux.
-        dispatch(setsocket({ id: socketInstance }));
+        dispatch(setsocketconnected(true));
+      });
+
+      socketInstance.on("disconnect", () => {
+        dispatch(setsocketconnected(false));
       });
 
       socketInstance.on("getonlineusers", (data: Array<string>) => {
         dispatch(setonlineusers(data));
-        console.log(` "online"data`);
       });
-    } else {
-      console.log(isauth, user);
     }
 
     return () => {
       if (socketInstance) {
         socketInstance.disconnect();
-        dispatch(setsocket({ id: null }));
+        clearSocketClient(socketInstance);
+        dispatch(setsocketconnected(false));
       }
     };
   }, [user, isauth, dispatch]);

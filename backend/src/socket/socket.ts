@@ -4,32 +4,42 @@ import { Server } from "socket.io";
 
 const app = express();
 const server = http.createServer(app);
+const allowedOrigins = [
+  process.env.FRONTEND_URL,
+  "http://localhost:5173",
+  "https://nepdaa-frontend.onrender.com",
+].filter((origin): origin is string => Boolean(origin));
+
 const io = new Server(server, {
   cors: {
-    origin: "https://nepdaa-frontend.onrender.com",
+    origin: allowedOrigins,
     methods: ["GET", "POST"],
     credentials: true,
   },
 });
 
-const usersocketmap: Record<string, string> = {};
-export const getsocketid = (id: string) => {
-  return usersocketmap[id];
-};
+const usersocketmap = new Map<string, Set<string>>();
 
 io.on("connection", (socket) => {
-  const userid = socket.handshake.query.userid as string;
-  if (userid) {
-    usersocketmap[userid] = socket.id;
+  const userid = socket.handshake.query.userid;
+  if (typeof userid === "string" && userid.length > 0) {
+    const sockets = usersocketmap.get(userid) ?? new Set<string>();
+    sockets.add(socket.id);
+    usersocketmap.set(userid, sockets);
+    socket.join(userid);
   }
 
-  io.emit("getonlineusers", Object.keys(usersocketmap));
+  io.emit("getonlineusers", Array.from(usersocketmap.keys()));
 
   socket.on("disconnect", () => {
-    if (userid) {
-      delete usersocketmap[userid];
+    if (typeof userid === "string") {
+      const sockets = usersocketmap.get(userid);
+      sockets?.delete(socket.id);
+      if (sockets?.size === 0) {
+        usersocketmap.delete(userid);
+      }
     }
-    io.emit("getonlineusers", Object.keys(usersocketmap));
+    io.emit("getonlineusers", Array.from(usersocketmap.keys()));
   });
 });
 
